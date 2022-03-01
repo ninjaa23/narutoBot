@@ -1,0 +1,21 @@
+{
+    "token" : "ODM3NDU0MzcwNTM3OTk2MzE4.YIsyKQ.pePYIgIYR-urLhHJznL-zbHCuyU",
+
+    "prefix" : "n*",
+
+    "ticket" : {
+        "category" : "840291526915653693",
+        "roles" : ["836168609885716520"]
+    },
+
+    "serverStats" : {
+        "ninjas" : "842289773632946176",
+        "gardes" : "842289856428507216",
+        "goal" : "932312024602525726"
+    },
+
+    "logs" : "843192273642192916",
+    "roles_logs": "940226017476354170",
+    "solitude" : "876121423398207508",
+    "bump" : "839807403762516008"
+}

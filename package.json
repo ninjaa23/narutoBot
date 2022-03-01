@@ -1,0 +1,18 @@
+{
+  "name": "naruto",
+  "version": "1.0.0",
+  "description": "Ouvouvouaivouain",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^13.5.1",
+    "fs": "^0.0.1-security",
+    "humanize-duration": "^3.27.1",
+    "moment": "^2.29.1",
+    "parse-duration": "^1.0.2"
+  },
+  "scripts": {
+    "test": "echo \"la grosse flemme\" && exit 1"
+  },
+  "author": "Un débile.",
+  "license": "ISC"
+}
