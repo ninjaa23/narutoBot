@@ -38,7 +38,7 @@ module.exports = {
                 ])
             )
         
-        message.channel.send({content: "**Plateforme :**", components: [menu]})
+        message.channel.send({content: "**Plateformes :**", components: [menu]})
     },
     name : 'plateforme'
 }

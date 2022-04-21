@@ -70,49 +70,48 @@ client.on('message', message => {
 
 // BOUTTONS, MENU
 client.on('interactionCreate', interaction => {
-    const member = interaction.member
+    const member = interaction.member,
+        rListe = member._roles
     const roles_logs = client.channels.cache.get(config.roles_logs)
     // BOUTONS
     if(interaction.isButton()){
         // règle
         if(interaction.customId === 'regle'){
             const ninja = '835929704351137797',
-                gender = '838086395066974239',
                 captcha = '836162790879657996',
                 autre = '843176992001097760'
             const general = client.channels.cache.get('835899615156764734')
             if(member.roles.cache.has(ninja)) return interaction.reply({content: "Tu as déjà accepté le pacte ninja !", ephemeral: true})
             interaction.reply({content: "ah oui et il y a écrit au dos de la feuille que tu n'as plus le droit de quitter le serveur en signant..cheh", ephemeral: true})
             member.roles.add(ninja)
-            member.roles.add(gender)
             member.roles.add(autre)
             member.roles.remove(captcha)
             general.send(`Bienvenue ${member} !`)
         }
-        // genre
+        // sexe
         if(interaction.customId === 'homme'){
-            const gender = '838086395066974239',
-                homme = '838087607740792892'
-            member.roles.remove(gender)
-            member.roles.add(homme)
-            roles_logs.send(`<@${member.user.id}> a choisis le **genre** <@&${homme}>.`)
-            interaction.reply({content: "Ton rôle a bien été ajouté ninja.", ephemeral: true})
+            const homme = '838087607740792892',
+                femme = '838088344260313099'
+
+            if(!rListe.includes(homme) && !rListe.includes(femme)){
+                member.roles.add(homme)
+                roles_logs.send(`<@${member.user.id}> a choisis le **sexe homme**.`)
+                interaction.reply({content: "Ton rôle a bien été ajouté ninja.", ephemeral: true})
+            }else{
+                interaction.reply({content: "Tu as déjà choisis ton sexe ninja..", ephemeral: true})
+            }
         }
         if(interaction.customId === 'femme'){
-            const gender = '838086395066974239',
+            const homme = '838087607740792892',
                 femme = '838088344260313099'
-            member.roles.remove(gender)
-            member.roles.add(femme)
-            roles_logs.send(`<@${member.user.id}> a choisis le **genre** <@&${femme}>.`)
-            interaction.reply({content: "Ton rôle a bien été ajouté ninja.", ephemeral: true})
-        }
-        if(interaction.customId === 'autre'){
-            const gender = '838086395066974239',
-                autre = '931606629353394286'
-            member.roles.remove(gender)
-            member.roles.add(autre)
-            roles_logs.send(`<@${member.user.id}> a choisis le **genre** <@&${autre}>.`)
-            interaction.reply({content: "Ton rôle a bien été ajouté ninja.", ephemeral: true})
+
+            if(!rListe.includes(homme) && !rListe.includes(femme)){
+                member.roles.add(femme)
+                roles_logs.send(`<@${member.user.id}> a choisis le **sexe femme**.`)
+                interaction.reply({content: "Ton rôle a bien été ajouté ninja.", ephemeral: true})
+            }else{
+                interaction.reply({content: "Tu as déjà choisis ton sexe ninja..", ephemeral: true})
+            }
         }
     }
     // MENU
@@ -127,47 +126,47 @@ client.on('interactionCreate', interaction => {
                 switcH = '836322341381865524',
                 mobile = '836322375440138291'
 
-            if(values.includes("ordinateur")){
+            if(values.includes("ordinateur") && !rListe.includes(ordinateur)){
                 member.roles.add(ordinateur)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${ordinateur}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **ordinateur**.`)
+            }else if(!values.includes("ordinateur") && rListe.includes(ordinateur)){
                 member.roles.remove(ordinateur)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${ordinateur}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **ordinateur**.`)
             }
-            if(values.includes("playstation")){
+            if(values.includes("playstation") && !rListe.includes(playstation)){
                 member.roles.add(playstation)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${playstation}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **playstation**.`)
+            }else if(!values.includes("playstation") && rListe.includes(playstation)){
                 member.roles.remove(playstation)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${playstation}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **playstation**.`)
             }
-            if(values.includes("xbox")){
+            if(values.includes("xbox") && !rListe.includes(xbox)){
                 member.roles.add(xbox)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${xbox}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **xbox**.`)
+            }else if(!values.includes("xbox") && rListe.includes(xbox)){
                 member.roles.remove(xbox)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${xbox}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **xbox**.`)
             }
-            if(values.includes("switch")){
+            if(values.includes("switch") && !rListe.includes(switcH)){
                 member.roles.add(switcH)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${switcH}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **switch**.`)
+            }else if(!values.includes("switch") && rListe.includes(switcH)){
                 member.roles.remove(switcH)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${switcH}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **switch**.`)
             }
-            if(values.includes("mobile")){
+            if(values.includes("mobile") && !rListe.includes(mobile)){
                 member.roles.add(mobile)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${mobile}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **mobile**.`)
+            }else if(!values.includes("mobile") && rListe.includes(mobile)){
                 member.roles.remove(mobile)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${mobile}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **mobile**.`)
             }
             if(values.length === 0){
                 member.roles.remove(plateforme)
-                roles_logs.send(`<@${member.user.id}> n'a plus de rôles dans <@&${plateforme}>.`)
+                roles_logs.send(`<@${member.user.id}> n'a plus de rôles de **plateforme**.`)
             } else member.roles.add(plateforme)
 
-            interaction.reply({content: "Tes roles ont bien été mis à jour !", ephemeral: true})
+            interaction.reply({content: "Tes roles ont bien été mis à jour ninja !", ephemeral: true})
         }
         // notifications
         if(interaction.customId === 'notification'){
@@ -178,59 +177,58 @@ client.on('interactionCreate', interaction => {
                 pubs_modo = '845977518661566464',
                 partenariat = '845977023666978856'
 
-            if(values.includes("bump")){
+            if(values.includes("bump") && !rListe.includes(bump)){
                 member.roles.add(bump)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${bump}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **bump**.`)
+            }else if(!values.includes("bump") && rListe.includes(bump)){
                 member.roles.remove(bump)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${bump}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **bump**.`)
             }
-            if(values.includes("anti_pub")){
+            if(values.includes("anti_pub") && !rListe.includes(anti_pub)){
                 member.roles.add(anti_pub)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${anti_pub}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **anti pub**.`)
+            }else if(!values.includes("anti_pub") && rListe.includes(anti_pub)){
                 member.roles.remove(anti_pub)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${anti_pub}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **anti pub**.`)
             }
-            if(values.includes("actualites")){
+            if(values.includes("actualites") && !rListe.includes(actualites)){
                 member.roles.add(actualites)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${actualites}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **actualités**.`)
+            }else if(!values.includes("actualites") && rListe.includes(actualites)){
                 member.roles.remove(actualites)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${actualites}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **actualités**.`)
             }
-            if(values.includes("pubs_modo")){
+            if(values.includes("pubs_modo") && !rListe.includes(pubs_modo)){
                 member.roles.add(pubs_modo)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${pubs_modo}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **pubs modo**.`)
+            }else if(!values.includes("pubs_modo") && rListe.includes(pubs_modo)){
                 member.roles.remove(pubs_modo)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${pubs_modo}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **pubs modo**.`)
             }
-            if(values.includes("partenariat")){
+            if(values.includes("partenariat") && !rListe.includes(partenariat)){
                 member.roles.add(partenariat)
-                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role <@&${partenariat}>.`)
-            }else{
+                roles_logs.send(`<@${member.user.id}> vient de se **rajouter** le role **partenariat**.`)
+            }else if(!values.includes("partenariat") && rListe.includes(partenariat)){
                 member.roles.remove(partenariat)
-                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role <@&${partenariat}>.`)
+                roles_logs.send(`<@${member.user.id}> vient de se **retirer** le role **partenariat**.`)
             }
             if(values.length === 0){
                 member.roles.remove(notification)
-                roles_logs.send(`<@${member.user.id}> n'a plus de rôles dans <@&${notification}>.`)
+                roles_logs.send(`<@${member.user.id}> n'a plus de rôles de notifications.`)
             } else member.roles.add(notification)
-            interaction.reply({content: "Tes roles ont bien été mis à jour !", ephemeral: true})
+
+            interaction.reply({content: "Tes roles ont bien été mis à jour ninja !", ephemeral: true})
         }
     }
 })
 
 // BUMP
 client.on('message', (message, member /* c'est pour plus tard le member mais tqt */) => {
-    if(message.type !== 'DEFAULT' || message.author.bot || !message.guild) return
+    if(!message.guild) return
     if(time === false) return
     const bump = client.channels.cache.get(config.bump)
-    const mess = message.content.toLocaleLowerCase()
-    if(mess !== "!d bump") return
-    if(message.channel.id !== bump.id) return
-    message.reply("Merci pour le bump mon reuf ♥️")
+    if(message.channel.id !== bump.id && message.author.id !== '302050872383242240') return
+    message.channel.send("Merci pour le bump mon reuf ♥️")
     time = false
     setTimeout(function(){
         bump.send("<@&939983835947491348>, un nouveau bump est disponible !")
@@ -260,9 +258,8 @@ client.on('message', (message) => {
     
     guild.members.fetch().then(member => {
         let ninja = member.filter(m => m.roles.cache.has('835929704351137797')).size
-        if(chiffre <= ninja) return message.reply("Tu ne peux pas mettre un goal plus égal ou plus petit que notre nombre de ninjas mon reuf.")
+        if(chiffre <= ninja) return message.reply("Tu ne peux pas mettre un goal égal ou plus petit que notre nombre de ninjas mon reuf.")
 
-        console.log(chiffre)
         client.channels.cache.get(config.serverStats.goal).setName(`🏆 Goal : ${chiffre}`)
         message.channel.send("Goal bien mis à jour !")
     })

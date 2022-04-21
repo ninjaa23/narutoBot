@@ -38,7 +38,7 @@ module.exports = {
                 ])
             )
         
-        message.channel.send({content: "**Notification :**", components: [menu]})
+        message.channel.send({content: "**Notifications :**", components: [menu]})
     },
     name : 'notif'
 }
