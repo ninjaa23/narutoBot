@@ -273,12 +273,20 @@ client.on('interactionCreate', interaction => {
 client.on('message', (message) => {
     if(!message.guild || !message.interaction) return
     if(time === false) return
-    const bump = client.channels.cache.get(config.bump)
-    if(message.channel.id !== bump.id || message.author.id !== '302050872383242240' || message.interaction.commandName !== "bump") return
+    if(message.author.id !== '302050872383242240' || message.interaction.commandName !== "bump") return
+
+    const bumpChannel = client.channels.cache.get(config.bump),
+        member = message.interaction.user
+
+    if(!client.db.bump[member.id]){
+        client.db.bump[member.id] = 1
+    }else client.db.bump[member.id] ++
+    fs.writeFileSync("./db.json", JSON.stringify(client.db))
+
     message.channel.send("Merci pour le bump mon reuf ♥️")
     time = false
     setTimeout(function(){
-        bump.send("<@&939983835947491348>, un nouveau bump est disponible !")
+        bumpChannel.send("<@&939983835947491348>, un nouveau bump est disponible !")
         time = true
     },7200000 /* =2h */)
 })
