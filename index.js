@@ -12,8 +12,9 @@ const Discord = require('discord.js'),
         fetshAllMembers : true,
         partials : ['MESSAGE', 'REACTION', 'CHANNEL']
     }),
-config = require('./config.json'),
-fs = require('fs')
+    config = require('./config.json'),
+    fs = require('fs'),
+    { SlashCommandBuilder } = require("@discordjs/builders")
 
 client.login(config.token)
 client.commands = new Discord.Collection()
@@ -41,32 +42,78 @@ fs.readdir('./commands', (err, files) => {
     })
 })
 
-// COMMANDE HANDLER
-client.on('message', message => {
-    if(!message.guild) return
-    if(message.type !== 'DEFAULT' || message.author.bot) return
+const Console = new SlashCommandBuilder()
+    .setName("console")
+    .setDescription("sheesh")
+    .addStringOption(option => option
+        .setName('text')
+        .setDescription("vroum vroum")
+        .setRequired(true));
 
-    const args = message.content.trim().split(/ +/g)
-    const commandName = args.shift()
-    const commandNameM = commandName.toLowerCase()
-    if(!commandName.startsWith(config.prefix)) return
-    const command = client.commands.get(commandName.slice(config.prefix.length))
-    const commandM = client.commands.get(commandNameM.slice(config.prefix.length))
-    if(command) {
-        command.run(message, args, client)
-    }else{
-        if(commandM){
-            commandM.run(message, args, client)
-        }else {
-            const wuw = message.content.trim().split(/ +/g).shift().slice(config.prefix.length)
-            if(wuw == "secretmp" || "setgoal" || "nextgoal"){
-                return
-            }else {
-                message.channel.send("Cette commande n'existe pas, tu peux faire n*help pour en savoir plus !")
-            }
-        }
+const Pp = new SlashCommandBuilder()
+        .setName('pp')
+        .setDescription("Affiche la pp d'un ninja.")
+        .addUserOption(option => option
+            .setName('user')
+            .setDescription("@ le ninja dont tu veux voir la pp.")
+            .setRequired(false));
+
+const Modset = new SlashCommandBuilder()
+            .setName('modset')
+            .setDescription("huh ?")
+            .addUserOption(option => option
+                .setName('user')
+                .setDescription('ouvouvouainvouain')
+                .setRequired(true))
+            .addIntegerOption(option => option
+                .setName('level')
+                .setDescription('sheesh')
+                .addChoice("le ninja le plus puissant d'ce monde", 1)
+                .addChoice("admin", 2)
+                .addChoice("modo", 3)
+                .addChoice("genin", 0)
+                .setRequired(true));
+
+commandes = [Console, Pp, Modset]
+
+client.on("ready", () => {
+    client.guilds.cache.get('835899614678876162').commands.set(commandes)
+})
+
+client.on('interactionCreate', interaction => {
+    if(!interaction.isCommand()) return;
+    const commande = client.commands.get(interaction.commandName)
+    if(commande){
+        commande.run({client, interaction})
     }
 })
+
+// // COMMANDE HANDLER
+// client.on('message', message => {
+//     if(!message.guild) return
+//     if(message.type !== 'DEFAULT' || message.author.bot) return
+
+//     const args = message.content.trim().split(/ +/g)
+//     const commandName = args.shift()
+//     const commandNameM = commandName.toLowerCase()
+//     if(!commandName.startsWith(config.prefix)) return
+//     const command = client.commands.get(commandName.slice(config.prefix.length))
+//     const commandM = client.commands.get(commandNameM.slice(config.prefix.length))
+//     if(command) {
+//         command.run(message, args, client)
+//     }else{
+//         if(commandM){
+//             commandM.run(message, args, client)
+//         }else {
+//             const wuw = message.content.trim().split(/ +/g).shift().slice(config.prefix.length)
+//             if(wuw == "secretmp" || "setgoal" || "nextgoal"){
+//                 return
+//             }else {
+//                 message.channel.send("Cette commande n'existe pas, tu peux faire n*help pour en savoir plus !")
+//             }
+//         }
+//     }
+// })
 
 // BOUTTONS, MENU
 client.on('interactionCreate', interaction => {
@@ -223,11 +270,11 @@ client.on('interactionCreate', interaction => {
 })
 
 // BUMP
-client.on('message', (message, member /* c'est pour plus tard le member mais tqt */) => {
-    if(!message.guild) return
+client.on('message', (message) => {
+    if(!message.guild || !message.interaction) return
     if(time === false) return
     const bump = client.channels.cache.get(config.bump)
-    if(message.channel.id !== bump.id && message.author.id !== '302050872383242240') return
+    if(message.channel.id !== bump.id || message.author.id !== '302050872383242240' || message.interaction.commandName !== "bump") return
     message.channel.send("Merci pour le bump mon reuf ♥️")
     time = false
     setTimeout(function(){

@@ -1,3 +1,4 @@
+/*
 const config = require('../config.json')
 
 module.exports = {
@@ -6,3 +7,4 @@ module.exports = {
     },
     name: 'setgoal'
 }
+*/
