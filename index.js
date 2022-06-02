@@ -42,6 +42,14 @@ fs.readdir('./commands', (err, files) => {
     })
 })
 
+const Clear = new SlashCommandBuilder()
+    .setName("clear")
+    .setDescription("wuw")
+    .addIntegerOption(option => option
+        .setName('text')
+        .setDescription("wow")
+        .setRequired(true));
+
 const Console = new SlashCommandBuilder()
     .setName("console")
     .setDescription("sheesh")
@@ -50,31 +58,72 @@ const Console = new SlashCommandBuilder()
         .setDescription("vroum vroum")
         .setRequired(true));
 
+const Modset = new SlashCommandBuilder()
+    .setName('modset')
+    .setDescription("huh ?")
+    .addUserOption(option => option
+        .setName('user')
+        .setDescription('ouvouvouainvouain')
+        .setRequired(true))
+    .addIntegerOption(option => option
+        .setName('level')
+        .setDescription('sheesh')
+        .addChoice("le ninja le plus puissant d'ce monde", 1)
+        .addChoice("admin", 2)
+        .addChoice("modo", 3)
+        .addChoice("genin", 0)
+        .setRequired(true));
+
 const Pp = new SlashCommandBuilder()
         .setName('pp')
-        .setDescription("Affiche la pp d'un ninja.")
+        .setDescription("Affiche la grosse tête d'un ninja.")
         .addUserOption(option => option
             .setName('user')
-            .setDescription("@ le ninja dont tu veux voir la pp.")
+            .setDescription("@ le ninja dont tu veux voir la big tête.")
             .setRequired(false));
 
-const Modset = new SlashCommandBuilder()
-            .setName('modset')
-            .setDescription("huh ?")
+const Warn = new SlashCommandBuilder()
+            .setName('warn')
+            .setDescription('tfouu')
             .addUserOption(option => option
                 .setName('user')
-                .setDescription('ouvouvouainvouain')
+                .setDescription('le connard')
                 .setRequired(true))
-            .addIntegerOption(option => option
-                .setName('level')
-                .setDescription('sheesh')
-                .addChoice("le ninja le plus puissant d'ce monde", 1)
-                .addChoice("admin", 2)
-                .addChoice("modo", 3)
-                .addChoice("genin", 0)
-                .setRequired(true));
+            .addStringOption(option => option
+                .setName('text')
+                .setDescription('raisonnarde')
+                .setRequired(false))
 
-commandes = [Console, Pp, Modset]
+const Unwarn = new SlashCommandBuilder()
+    .setName('unwarn')
+    .setDescription('tfouu ehlek')
+    .addUserOption(option => option
+        .setName('user')
+        .setDescription("l'ancien connard")
+        .setRequired(true))
+    .addIntegerOption(option => option
+        .setName('chiffre')
+        .setDescription("fphfphfphf")
+        .setRequired(true))
+    .addStringOption(option => option
+        .setName('text')
+        .setDescription("raisonnarde de la raisonnarde")
+        .setRequired(false))
+
+const UserInfo = new SlashCommandBuilder()
+        .setName('userinfo')
+        .setDescription('gnah')
+        .addUserOption(option => option
+            .setName('user')
+            .setDescription('arha')
+            .setRequired(false))
+        .addIntegerOption(option => option
+            .setName('info')
+            .setDescription('wuw')
+            .addChoice("warns", 1)
+            .setRequired(false))
+
+commandes = [Clear, Console, Modset, Pp, Warn, Unwarn, UserInfo]
 
 client.on("ready", () => {
     client.guilds.cache.get('835899614678876162').commands.set(commandes)
@@ -83,37 +132,11 @@ client.on("ready", () => {
 client.on('interactionCreate', interaction => {
     if(!interaction.isCommand()) return;
     const commande = client.commands.get(interaction.commandName)
+    const levelBoard = {1: "ninja le plus puissant d'ce monde", 2: "admin", 3: "modo", 0: "genin"}
     if(commande){
-        commande.run({client, interaction})
+        commande.run({client, interaction, levelBoard})
     }
 })
-
-// // COMMANDE HANDLER
-// client.on('message', message => {
-//     if(!message.guild) return
-//     if(message.type !== 'DEFAULT' || message.author.bot) return
-
-//     const args = message.content.trim().split(/ +/g)
-//     const commandName = args.shift()
-//     const commandNameM = commandName.toLowerCase()
-//     if(!commandName.startsWith(config.prefix)) return
-//     const command = client.commands.get(commandName.slice(config.prefix.length))
-//     const commandM = client.commands.get(commandNameM.slice(config.prefix.length))
-//     if(command) {
-//         command.run(message, args, client)
-//     }else{
-//         if(commandM){
-//             commandM.run(message, args, client)
-//         }else {
-//             const wuw = message.content.trim().split(/ +/g).shift().slice(config.prefix.length)
-//             if(wuw == "secretmp" || "setgoal" || "nextgoal"){
-//                 return
-//             }else {
-//                 message.channel.send("Cette commande n'existe pas, tu peux faire n*help pour en savoir plus !")
-//             }
-//         }
-//     }
-// })
 
 // BOUTTONS, MENU
 client.on('interactionCreate', interaction => {
@@ -267,6 +290,28 @@ client.on('interactionCreate', interaction => {
             interaction.reply({content: "Tes roles ont bien été mis à jour ninja !", ephemeral: true})
         }
     }
+})
+
+// COMMAND LOGS
+client.on('message', (message) => {
+    if(!message.guild || !message.interaction) return
+    const member = message.interaction.user,
+        channel = message.channelId,
+        name = message.interaction.commandName,
+        bot = message.author,
+        logs = config.command_logs
+    
+    message.guild.channels.cache.get(logs).send({embeds: [
+        new Discord.MessageEmbed()
+        .setAuthor(`[${name}] ${member.username}`, member.displayAvatarURL())
+        .addField("bot", `<@${bot.id}>`, false)
+        .addField("commande", `${name}`, false)
+        .addField("channel", `<#${channel}>`, false)
+        .addField("ninja", `<@${member.id}>`, false)
+        .setThumbnail(bot.displayAvatarURL())
+        .setColor("#000")
+        .setTimestamp()
+    ]})
 })
 
 // BUMP

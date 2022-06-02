@@ -1,52 +1,48 @@
+const fs = require('fs'),
+    config = require('../config.json'),
+    Discord = require('discord.js'),
+    moment = require('moment')
+
+moment.locale('fr')
+
 module.exports = {
-    run : (message) => {
-        message.reply("Cette commande est en maintenance désolée ninja..")
+    run : ({client, interaction, levelBoard}) => {
+        const member = interaction.options.getUser('user'),
+            index = interaction.options.getInteger('chiffre'),
+            raison =  interaction.options.getString('text') || "Aucune raison fournie.",
+            levelAuthor = client.db.hierarchie[interaction.user.id] || 0,
+            levelMember = client.db.hierarchie[member.id] || 0,
+            ownerId = '755765421021331497'
+
+        if(member.id === interaction.user.id && interaction.user.id !== ownerId) return interaction.reply("T'as cru que je suis beteuh ou quoi ?")
+        if(levelAuthor === 0) return interaction.reply("Tu n'es pas assez puissant pour effectuer cette commande ninja, retourne t'entrainer !")
+        if(levelMember !== 0 && levelAuthor >= levelMember && interaction.user.id !== ownerId) return interaction.reply(`Je ne peux que unwarn les ninjas à un grade inférieur du tiens, tu es grade ${levelAuthor} (${levelBoard[levelAuthor]})`)
+        if(index < 1) return interaction.reply("Bon te fous pas de moi stp...")
+        if(!client.db.warn[member.id]) return interaction.reply("Ce ninja n'a fait aucune bétises...")
+        if(!client.db.warn[member.id][index - 1]) return interaction.reply("Ce warn n'existe pas, je crois que tu t'es trompé de chiffre")
+
+        const warn = client.db.warn[member.id][index - 1]
+        client.db.warn[member.id].splice([index - 1], 1)
+        if(!client.db.warn[member.id].length) delete client.db.warn[member.id]
+        fs.writeFileSync('./db.json', JSON.stringify(client.db))
+
+        interaction.guild.channels.cache.get(config.logs).send({embeds: [
+            new Discord.MessageEmbed()
+            .setAuthor(`[UNWARN] ${member.username}`, member.displayAvatarURL())
+            .addField("staff", `<@${interaction.user.id}>`, false)
+            .addField("Rang", `${levelAuthor} (${levelBoard[levelAuthor]})`, true)
+            .addField("ninja", `<@${member.id}>`, false)
+            .addField("Rang", `${levelMember} (${levelBoard[levelMember]})`, true)
+            .addField("raison", `${raison}`, false)
+            .addField("**ancienne raison**", `${warn['raison']}`, true)
+            .addField("**staff qui a warn**", `<@${warn.staff['id']}> (${warn.staff['pseudo']})`)
+            .addField("**date du warn**", `${moment(warn['date']).format(`DD/MM/YYYY [à] HH:mm:ss`)} (${moment(warn['date']).fromNow()})`)
+            .setThumbnail(interaction.user.displayAvatarURL())
+            .setColor("#000")
+            .setTimestamp()
+        ]})
+
+        return interaction.reply("C'est bon 👍🏿")
     },
     name : 'unwarn'
 }
-/*
-const fs = require('fs'),
-    Discord = require('discord.js'),
-    config = require('../config.json')
-
-module.exports = {
-    run : async(message, args, client) =>  {
-        const member = message.mentions.members.first()
-
-        if(!member) return message.channel.send("Mentionne-moi qui est devenu gentil.")
-        if(member.id === message.author.id) return message.reply("Tu ne peux pas te unwarn tout seul voyons ?")
-
-        let authLevel
-        let modLevel
-        if(client.db.hierarchie.user[member.id]) modLevel = client.db.hierarchie.user[member.id].level
-        if(client.db.hierarchie.user[message.author.id]) authLevel = client.db.hierarchie.user[message.author.id].level
-        const warnIndex = parseInt(args[1], 10) - 1
-
-        if(member.id === message.guild.ownerID) return message.reply("Ce ninja est trop sage pour avoir fais une bétise.")
-        if(!client.db.warns[member.id]) return message.channel.send("Ce ninja n'a fait aucune bétise.")
-        if((!warnIndex) && (warnIndex !== 0)) return message.channel.send("Quel bétise doit être supprimé ?")
-        if(warnIndex < 0 || !client.db.warns[member.id][warnIndex]) return message.channel.send("Tu crois que c'est du respect ça mon garçon ?")
-        const { reason } = client.db.warns[member.id].splice(warnIndex, 1)[0]
-
-        if(!authLevel) return message.reply("Tu n'es que genin, tu ne peux pas prendre ce genre de décisions. Tu peux faire un ticket et le demander à quelqu'un de supérieur.")
-        if(authLevel >= modLevel) return message.channel.send("Tu n'es pas assez puissant pour le unwarn ninja, parles-en à des personnes au dessus.")
-
-        if(!client.db.warns[member.id].length) delete client.db.warns[member.id]
-        fs.writeFileSync('./db.json', JSON.stringify(client.db))
-
-        message.channel.send(`${member} a été unwarn de : ${reason}.`)
-        message.guild.channels.cache.get(config.logs).send(new Discord.MessageEmbed()
-            .setAuthor(`[UNWARN] ${member.user.tag}`, member.user.displayAvatarURL())
-            .addField("Utilisateur", member, true)
-            .addField("Modérateur", message.author, true)
-            .addField("Warn supprimé", reason, true)
-            .setColor("#000")
-            .setTimestamp())
-    },
-    name : 'unwarn',
-    help : {
-        description : "Enlève la bétise d'un ninja.",
-        syntax : "<@leNinja> <le numéro de la bétise>"
-    }
-}
-*/

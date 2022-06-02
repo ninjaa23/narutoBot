@@ -8,8 +8,4 @@ module.exports = {
         }
     },
     name : 'pp',
-    help : {
-        description : "Affiche la grosse tête d'un ninja",
-        syntax : "<@LeNinja>"
-    }
 }
