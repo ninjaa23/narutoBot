@@ -1,20 +1,49 @@
-/*
-const fs = require('fs')
+const config = require("../config.json"),
+    mysql = require('mysql')
+
+const db = mysql.createConnection({
+    host : config.db.host,
+    port : config.db.port,
+    user : config.db.user,
+    password : config.db.pass,
+    database : config.db.name
+})
 
 module.exports = {
-    run : async(message, client) => {
-        const channel = message.mentions.channels.first() || message.channel
-        if(!client.db.tickets[channel.id]) return message.channel.send("Le salon n'est pas un ticket...")
-        if(!message.member.hasPermission('MANAGE_MESSAGES') && client.db.tickets[channel.id].author !== message.author.id) return message.channel.send("T'es pas assez puissant pour le faire désolée ninja.. retourne t'entrainer !")
-        delete client.db.tickets[channel.id]
-        fs.writeFileSync('./db.json', JSON.stringify(client.db))
-        await channel.delete()
-        message.channel.send(`Le ticket ${channel.name} a été correctement détruit par mon rasengan !`)
+    run : ({interaction}) => {
+        const member = interaction.user,
+            channelid = interaction.options.getChannel('channel') ? interaction.options.getChannel('channel').id : interaction.channelId
+        
+        db.query(`SELECT titre,close FROM tickets WHERE channelid = "${channelid}";`,
+            (err, result) => {
+                if(err) return console.log(err);
+                
+                if(result.length === 0) return interaction.reply("Ce channel n'est pas un ticket ninja.")
+
+                const close = result[0]["close"]
+                
+                const channel = interaction.guild.channels.cache.get(channelid),
+                    interactionChannel = interaction.guild.channels.cache.get(interaction.channelId)
+                
+                if(!close){
+                    interaction.reply("nice")
+                    setTimeout(function() {
+                        channel.setParent(config.ticketlogs)
+                        db.query(`UPDATE tickets SET close = true WHERE channelid = ${channelid}`)
+
+                        channel.send(`Ticket close par ${member}`)
+                    }, 2000)
+                }else{
+                    db.query(`DELETE FROM tickets WHERE channelid = ${channelid}`)
+                    interaction.reply("c'est bon")
+                    setTimeout(function() {
+                        interactionChannel.send("je mange le ticket dans 2 secs mon reuf")
+                    }, 1000)
+                    setTimeout(function() {
+                        return channel.delete()
+                    }, 3000)
+                }
+            })
     },
-    name : 'close',
-    help : {
-        description : "Ferme un ticket.",
-        sytax : "<#ticket> ou envoyer dans le ticket"
-    }
+    name : 'close'
 }
-*/

@@ -8,7 +8,9 @@
     "fs": "^0.0.1-security",
     "humanize-duration": "^3.27.1",
     "moment": "^2.29.1",
-    "parse-duration": "^1.0.2"
+    "mysql": "^2.18.1",
+    "parse-duration": "^1.0.2",
+    "sql": "^0.78.0"
   },
   "scripts": {
     "test": "echo \"la grosse flemme\" && exit 1"

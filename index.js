@@ -123,7 +123,46 @@ const UserInfo = new SlashCommandBuilder()
             .addChoice("warns", 1)
             .setRequired(false))
 
-commandes = [Clear, Console, Modset, Pp, Warn, Unwarn, UserInfo]
+const Ticket = new SlashCommandBuilder()
+            .setName('ticket')
+            .setDescription('ok.')
+            .addStringOption(option => option
+                .setName('titre')
+                .setDescription("Le titre de ton ticket")
+                .setRequired(true))
+            .addIntegerOption(option => option
+                .setName('raison')
+                .setDescription("La raison de ton ticket")
+                .addChoice("Autre",0)
+                .addChoice("Signalement",1)
+                .addChoice("Question/renseignement",2)
+                .addChoice("Bug/problème",3)
+                .setRequired(true))
+            .addIntegerOption(option => option
+                .setName('modos')
+                .setDescription("A qui tu veux parler ?")
+                .addChoice("Juste ninjaa",0)
+                .addChoice("Administrateurs",1)
+                .addChoice("Tout le staff",2)
+                .setRequired(true))
+
+const Close = new SlashCommandBuilder()
+                .setName('close')
+                .setDescription('rwarr')
+                .addChannelOption(option => option
+                    .setName('channel')
+                    .setDescription("Le ticket que tu veux supprimer.")
+                    .setRequired(false))
+
+const Unclose = new SlashCommandBuilder()
+                    .setName('unclose')
+                    .setDescription('rwuurr')
+                    .addChannelOption(option => option
+                        .setName('channel')
+                        .setDescription("Le ticket que tu veux remettre.")
+                        .setRequired(false))
+
+commandes = [Clear, Console, Modset, Pp, Warn, Unwarn, UserInfo, Ticket, Close, Unclose]
 
 client.on("ready", () => {
     client.guilds.cache.get('835899614678876162').commands.set(commandes)
@@ -473,49 +512,4 @@ client.on('message', message => {
         if(contenu.split(' ')[1] === 'bonjour'){
             message.reply("Yo")
         }
-})
-
-// DM
-client.on('message', message => {
-    if(message.guild) return
-
-    const author = message.author.tag
-    const content = message.content
-    const solitude = client.channels.cache.get(config.solitude)
-    if(dm === 0){
-solitude.send(`
-**${author}**
-${content}`)
-    }else dm = 0
-})
-
-client.on("message", message => {
-    if(message.type !== 'DEFAULT' || message.author.bot) return
-    const args = message.content.trim().split(/ +/g),
-        commandA = args.shift().toLowerCase()
-    if(!commandA.startsWith(config.prefix)) return
-    const command = commandA.slice(config.prefix.length)
-
-    if(command == "secretmp"){
-        const guild = client.guilds.cache.find(g => g.id === '835899614678876162')
-        const id = args[0]
-        let tssoua = 0
-        const text = args.slice(1).join(' ')
-
-        if(!client.db.hierarchie.user[message.author.id]) return message.reply("Tu n'es que genin, je ne peux pas mp des personnes pour toi malheuresement.")
-        if(!id) return message.channel.send("Tu ne m'as pas donné l'id du ninja que je dois mp.")
-        if(!text) return message.channel.send("Tu ne m'as pas dis le message à envoyer ninja.")
-
-        guild.members.cache.forEach(async(member) => {
-            if(member.id !== id) return
-            try{
-                tssoua = 1
-                await member.send(text)
-                await message.channel.send("Message bien envoyé !")
-            } catch (err) {
-                await message.reply("J'ai rencontré une erreur, cette personne ne peut peut-être pas recevoir de messages d'inconnues.")
-            }
-        })
-        if(tssoua === 0) return message.reply("Il n'y a aucun membre disposant de cette id ninja.")
-    }
 })

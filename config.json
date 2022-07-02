@@ -1,9 +1,11 @@
 {
     "token" : "sheesh",
-
-    "ticket" : {
-        "category" : "840291526915653693",
-        "roles" : ["836168609885716520"]
+    "db" : {
+        "host" : "sheesh",
+        "port" : "sheesh",
+        "user" : "sheesh",
+        "pass" : "sheesh",
+        "name" : "sheesh"
     },
 
     "serverStats" : {
@@ -16,5 +18,7 @@
     "roles_logs": "940226017476354170",
     "command_logs": "975313022602051624",
     "solitude" : "876121423398207508",
-    "bump" : "839807403762516008"
+    "bump" : "839807403762516008",
+    "ticket" :"992135960399708200",
+    "ticketlogs" : "992180760742207689"
 }
