@@ -7,5 +7,5 @@ module.exports = {
             interaction.reply(interaction.user.displayAvatarURL({ size: 2048, format:'png' }))
         }
     },
-    name : 'pp',
+    name : 'pp'
 }

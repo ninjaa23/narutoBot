@@ -34,7 +34,7 @@ module.exports = {
                         return channel.send("T'en a carrément plus toi en plus !")
                     }else return
                 }
-                if(titre.length > 100) return interaction.reply(`Le titre de ton ticket ne doit pas dépasser les 100 caractères, il fait ${titre.length}. Tiens pour éviter de tout reécrire ninja : ${titre}`)
+                if(titre.length > 100) return interaction.reply(`Le titre de ton ticket ne doit pas dépasser les 100 caractères, il fait ${titre.length} caractères. Tiens pour éviter de tout reécrire ninja : ${titre}`)
 
                 const ticketChannel = await interaction.guild.channels.create(`${titre}`, {
                     type : 'text',

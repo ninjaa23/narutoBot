@@ -4,7 +4,7 @@
   "description": "Ouvouvouaivouain",
   "main": "index.js",
   "dependencies": {
-    "discord.js": "^13.5.1",
+    "discord.js": "^13.8.1",
     "fs": "^0.0.1-security",
     "humanize-duration": "^3.27.1",
     "moment": "^2.29.1",

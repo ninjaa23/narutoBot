@@ -14,7 +14,15 @@ const Discord = require('discord.js'),
     }),
     config = require('./config.json'),
     fs = require('fs'),
-    { SlashCommandBuilder } = require("@discordjs/builders")
+    { SlashCommandBuilder } = require("@discordjs/builders"),
+    mysql = require('mysql'),
+    db = mysql.createConnection({
+        host : config.db.host,
+        port : config.db.port,
+        user : config.db.user,
+        password : config.db.pass,
+        database : config.db.name
+        })
 
 client.login(config.token)
 client.commands = new Discord.Collection()
@@ -38,6 +46,14 @@ fs.readdir('./commands', (err, files) => {
     files.forEach(file => {
         if(!file.endsWith('.js')) return
         const command = require(`./commands/${file}`)
+        client.commands.set(command.name, command)
+    })
+})
+fs.readdir('./commands/party', (err, files) => {
+    if(err) throw err
+    files.forEach(file => {
+        if(!file.endsWith('.js')) return
+        const command = require(`./commands/party/${file}`)
         client.commands.set(command.name, command)
     })
 })
@@ -68,10 +84,12 @@ const Modset = new SlashCommandBuilder()
     .addIntegerOption(option => option
         .setName('level')
         .setDescription('sheesh')
-        .addChoice("le ninja le plus puissant d'ce monde", 1)
-        .addChoice("admin", 2)
-        .addChoice("modo", 3)
-        .addChoice("genin", 0)
+        .addChoices(
+            {name: "le ninja le plus puissant d'ce monde", value: 1},
+            {name: "admin", value: 2},
+            {name: "modo", value: 3},
+            {name: "genin", value: 0}
+        )
         .setRequired(true));
 
 const Pp = new SlashCommandBuilder()
@@ -120,7 +138,9 @@ const UserInfo = new SlashCommandBuilder()
         .addIntegerOption(option => option
             .setName('info')
             .setDescription('wuw')
-            .addChoice("warns", 1)
+            .addChoices(
+                {name: "warns", value: 1}
+            )
             .setRequired(false))
 
 const Ticket = new SlashCommandBuilder()
@@ -133,17 +153,21 @@ const Ticket = new SlashCommandBuilder()
             .addIntegerOption(option => option
                 .setName('raison')
                 .setDescription("La raison de ton ticket")
-                .addChoice("Autre",0)
-                .addChoice("Signalement",1)
-                .addChoice("Question/renseignement",2)
-                .addChoice("Bug/problème",3)
+                .addChoices(
+                    {name: "Autre", value: 0},
+                    {name: "Signalement", value: 2},
+                    {name: "Question/renseignement", value: 2},
+                    {name: "Bug/problème", value: 3}
+                )
                 .setRequired(true))
             .addIntegerOption(option => option
                 .setName('modos')
                 .setDescription("A qui tu veux parler ?")
-                .addChoice("Juste ninjaa",0)
-                .addChoice("Administrateurs",1)
-                .addChoice("Tout le staff",2)
+                .addChoices(
+                    {name: "Juste ninjaa", value: 0},
+                    {name: "Administrateurs", value: 1},
+                    {name: "Tout le staff", value: 2}
+                )
                 .setRequired(true))
 
 const Close = new SlashCommandBuilder()
@@ -162,7 +186,35 @@ const Unclose = new SlashCommandBuilder()
                         .setDescription("Le ticket que tu veux remettre.")
                         .setRequired(false))
 
-commandes = [Clear, Console, Modset, Pp, Warn, Unwarn, UserInfo, Ticket, Close, Unclose]
+const Party = new SlashCommandBuilder()
+                        .setName('party')
+                        .setDescription("si tu quitte la vocal, j'me jette par la fenêtre..")
+                        .addStringOption(option => option
+                            .setName('titre')
+                            .setDescription("Le titre de ta vocal")
+                            .setRequired(true))
+                        .addIntegerOption(option => option
+                            .setName('confidentialite')
+                            .setDescription("Vocal privée ou public ?")
+                            .addChoices(
+                                {name: "Public", value: 0},
+                                {name: "Privée", value: 1}
+                            )
+                            .setRequired(true))
+                        .addIntegerOption(option => option
+                            .setName('capacite')
+                            .setDescription("Le nombre de ninjas maximum dans la vocal.")
+                            .setRequired(false))
+
+const PartyInvite = new SlashCommandBuilder()
+                        .setName('partyinvite')
+                        .setDescription("PAW")
+                        .addUserOption(option => option
+                            .setName('user')
+                            .setDescription("Le ninja que tu veux inviter")
+                            .setRequired(true))
+
+commandes = [Clear, Console, Modset, Pp, Warn, Unwarn, UserInfo, Ticket, Close, Unclose, Party, PartyInvite]
 
 client.on("ready", () => {
     client.guilds.cache.get('835899614678876162').commands.set(commandes)
@@ -173,7 +225,7 @@ client.on('interactionCreate', interaction => {
     const commande = client.commands.get(interaction.commandName)
     const levelBoard = {1: "ninja le plus puissant d'ce monde", 2: "admin", 3: "modo", 0: "genin"}
     if(commande){
-        commande.run({client, interaction, levelBoard})
+        commande.run({client, interaction, levelBoard, db})
     }
 })
 
@@ -327,6 +379,90 @@ client.on('interactionCreate', interaction => {
             } else member.roles.add(notification)
 
             interaction.reply({content: "Tes roles ont bien été mis à jour ninja !", ephemeral: true})
+        }
+    }
+})
+
+// PARTY + VOCAL LOGS
+client.on('voiceStateUpdate', (oldState, newState) => {
+    const logs = oldState.guild.channels.cache.get(config.vocal_logs),
+        oldChannel = oldState.guild.channels.cache.get(oldState.channelId),
+        newChannel = oldState.guild.channels.cache.get(newState.channelId)
+
+    // vocal logs
+    if(newState.channelId && !oldState.channelId) {
+        logs.send({embeds: [
+            new Discord.MessageEmbed()
+            .setTitle(`[JOIN] ${oldState.member.user.username}#${oldState.member.user.discriminator}`)
+            .setDescription(`${oldState.member} a **rejoint** la vocal ${newChannel}`)
+            .setThumbnail(oldState.member.displayAvatarURL())
+            .setColor("#000")
+            .setTimestamp()
+        ]})
+    }else if(oldState.channelId && !newState.channelId){
+        logs.send({embeds: [
+            new Discord.MessageEmbed()
+            .setTitle(`[LEAVE] ${oldState.member.user.username}#${oldState.member.user.discriminator}`)
+            .setDescription(`${oldState.member} a **quitté** la vocal ${oldChannel}`)
+            .setThumbnail(oldState.member.displayAvatarURL())
+            .setColor("#000")
+            .setTimestamp()
+        ]})
+    }else if(oldState.channelId && newState.channelId && oldState.channelId != newState.channelId){
+        logs.send({embeds: [
+            new Discord.MessageEmbed()
+            .setTitle(`[MOVE] ${oldState.member.user.username}#${oldState.member.user.discriminator}`)
+            .setDescription(`${oldState.member} s'est **déplacé** de ${oldChannel} à ${newChannel}`)
+            .setThumbnail(oldState.member.displayAvatarURL())
+            .setColor("#000")
+            .setTimestamp()
+        ]})
+    }
+
+    if(!oldState.selfMute && newState.selfMute){
+        logs.send({embeds: [
+            new Discord.MessageEmbed()
+            .setTitle(`[MUTE] ${oldState.member.user.username}#${oldState.member.user.discriminator}`)
+            .setDescription(`${oldState.member} s'est **muté**`)
+            .setThumbnail(oldState.member.displayAvatarURL())
+            .setColor("#000")
+            .setTimestamp()
+        ]})
+    }else if(oldState.selfMute && !newState.selfMute){
+        logs.send({embeds: [
+            new Discord.MessageEmbed()
+            .setTitle(`[UNMUTE] ${oldState.member.user.username}#${oldState.member.user.discriminator}`)
+            .setDescription(`${oldState.member} s'est **démuté**`)
+            .setThumbnail(oldState.member.displayAvatarURL())
+            .setColor("#000")
+            .setTimestamp()
+        ]})
+    }
+
+    // party
+    if(oldState.channelId && oldState.channelId != newState.channelId && oldState.channelId != '993861078297620580'){
+        if(oldChannel.parentId == config.party_parent){
+            if(oldChannel.members.size != 0){
+                db.query(`SELECT owner FROM party WHERE channelid = "${oldState.channelId}";`,
+                async(err, result) => {
+                    if(err) return console.log(err);
+                    const ownerid = result[0]["owner"]
+
+                    if(oldState.member.id == ownerid){
+                        const vocMembers = []
+                        oldChannel.members.forEach(member => {
+                            vocMembers.push(member.id)
+                        })
+                        const memberAlea = vocMembers[Math.floor(Math.random()*vocMembers.length)]
+                        db.query(`UPDATE party SET owner = '${memberAlea}' WHERE channelid = '${oldState.channelId}'`)
+                        oldChannel.send(`Le nouveau chef de la party est <@${memberAlea}>`)
+                    }
+                })
+            }else{
+                db.query(`DELETE FROM party WHERE channelid = ${oldState.channelId};`)
+                db.query(`DELETE FROM partyInvite WHERE channelid = ${oldState.channelId};`)
+                oldChannel.delete()
+            }
         }
     }
 })
@@ -505,7 +641,7 @@ client.on('message', message => {
     if(zakaria.id !== '837454370537996318') return
 
         if((contenu.indexOf("test") > 0)||(contenu.indexOf("ntm") > 0)||(contenu.indexOf("creve") > 0)){
-            message.reply("ta mere")
+            
         }else{
             message.channel.send('¿')
         }
