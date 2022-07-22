@@ -5,14 +5,15 @@ module.exports = {
         const ninja = interaction.options.getUser('user'),
             fakemember = interaction.user,
             member = interaction.guild.members.cache.get(fakemember.id),
-            levelAuthor = client.db.hierarchie[interaction.user.id],
+            levelAuthor = client.db.hierarchie[interaction.user.id] || 0,
             realNinja = interaction.guild.members.cache.get(ninja.id)
         
-        if(!member.voice.channel) interaction.reply("t'es meme pas en voc tu veux inviter qui hmar ?")
+        if(!member.voice.channel) return interaction.reply("t'es meme pas en voc tu veux inviter qui hmar ?")
         if(member.voice.channel.parentId != config.party_parent || member.voice.channel.id == "993861078297620580") return interaction.reply("Tu n'es pas dans une party vocal ninja.")
         if(realNinja.voice.channel){
             if(realNinja.voice.channel.id == member.voice.channel.id) return interaction.reply("Il est déjà en vocal avec toi hmar")
         }
+        if(fakemember.id == ninja.id) return interaction.reply("Tu es beteuh ?")
 
         db.query(`SELECT owner, confidentialite, titre FROM party WHERE channelid = ${member.voice.channel.id};`,
             (err, result) => {

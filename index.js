@@ -214,7 +214,35 @@ const PartyInvite = new SlashCommandBuilder()
                             .setDescription("Le ninja que tu veux inviter")
                             .setRequired(true))
 
-commandes = [Clear, Console, Modset, Pp, Warn, Unwarn, UserInfo, Ticket, Close, Unclose, Party, PartyInvite]
+const PartyKick = new SlashCommandBuilder()
+                        .setName('partykick')
+                        .setDescription("mince")
+                        .addUserOption(option => option
+                            .setName('user')
+                            .setDescription("Le ninja que tu veux kick")
+                            .setRequired(true))
+
+const PartyConfidentialite = new SlashCommandBuilder()
+                                .setName('partyconfidentialite')
+                                .setDescription('douce')
+                                .addIntegerOption(option => option
+                                    .setName('confidentialite')
+                                    .setDescription("La confidentialite de la party")
+                                    .addChoices(
+                                        {name: "Public", value: 0},
+                                        {name: "Privée", value: 1}
+                                    )
+                                    .setRequired(true))
+
+const PartyCapacite = new SlashCommandBuilder()
+                                .setName('partycapacite')
+                                .setDescription('kai')
+                                .addIntegerOption(option => option
+                                    .setName('capacite')
+                                    .setDescription("La capacite de la party")
+                                    .setRequired(true))
+
+commandes = [Clear, Console, Modset, Pp, Warn, Unwarn, UserInfo, Ticket, Close, Unclose, Party, PartyInvite, PartyKick, PartyConfidentialite, PartyCapacite]
 
 client.on("ready", () => {
     client.guilds.cache.get('835899614678876162').commands.set(commandes)

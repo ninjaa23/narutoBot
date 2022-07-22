@@ -21,7 +21,7 @@ module.exports = {
                 parent : config.party_parent,
                 userLimit : capacite,
                 permissionOverwrites : [{
-                    id : interaction.guild.roles.everyone,
+                    id : config.ninja,
                     deny : ['VIEW_CHANNEL']
                 },
                 {
@@ -37,7 +37,7 @@ module.exports = {
                 parent : config.party_parent,
                 userLimit : capacite,
                 permissionOverwrites : [{
-                    id : interaction.guild.roles.everyone,
+                    id : config.ninja,
                     allow : ['CREATE_INSTANT_INVITE', 'ADD_REACTIONS', 'STREAM', 'VIEW_CHANNEL', 'SEND_MESSAGES', 'SEND_TTS_MESSAGES', 'EMBED_LINKS', 'ATTACH_FILES', 'READ_MESSAGE_HISTORY', 'USE_EXTERNAL_EMOJIS', 'CONNECT', 'SPEAK', 'USE_APPLICATION_COMMANDS', 'CREATE_PUBLIC_THREADS', 'USE_EXTERNAL_STICKERS']
                 }]
             })
