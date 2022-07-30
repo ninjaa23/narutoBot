@@ -580,13 +580,9 @@ client.on('ready', () => {
 
         const statuses = [
             () => 'Concentrer son chakra !',
-            () => 'Attendre n*help',
-            () => 'Malaxer son fuiton',
             () => `Gérer ${ninja} ninjas !`,
-            () => `Discuter avec ${garde - 1} autres gardes !`,
-            () => 'Manger des ramens..',
-            () => 'Chercher Sasuke ce hmall...',
-            () => 'Entrainer Konohamaru'
+            () => 'Malaxer son fuiton',
+            () => 'Manger des ramens..'
         ]
         client.user.setActivity(statuses[i](), {type : 'PLAYING'})
         i = ++i % statuses.length
@@ -616,64 +612,55 @@ client.on('guildMemberRemove', member => {
     wowB.send(`**Adieu ${member.user.tag}, sale déserteur !**`)
 })
 
-// KSOS
-client.on('message', (message) => {
-    if(message.author.id === '837454370537996318') return
-    let contentM = message.content.toLocaleLowerCase().replace(/[.,\/#!?$%\^&\*;:{}=\-_`~()]/g,"")
-    contentM = contentM.replace(/ /g, "")
-    let taille = contentM.length
-
-    // quoi
-    for(let i = 1; i < taille; i++){
-        if(contentM[taille - i] === 'i'){
-            contentM = contentM.replace(/.$/, '');
-        }
-    }
-
-    contentM += 'i'
-    if(contentM.endsWith('quoi')){
-        message.reply('feur')
-    }
-    contentM = contentM.replace(/.$/, '')
-
-    // 1, 2, 3, soleil
-    for(let i = 1; i < taille; i++){
-        if(contentM[taille - i] === 'n'){
-            contentM = contentM.replace(/.$/, '');
-        }
-    }
-
-    contentM += 'n'
-    if(contentM.endsWith("hein")){
-        message.reply("2")
-    }
-    contentM = contentM.replace(/.$/, '')
-    if(contentM === "1"){
-        message.reply("2")
-    }
-    if(contentM === "2"){
-        message.reply("3")
-    }
-    if(contentM === "3"){
-        message.reply("soleil")
-    }
-})
-
-// SELF PING
 client.on('message', message => {
+    function klock(occurence, contenu){
+        if(["q", "k", "c"].includes(contenu[occurence - 1])){
+            klock(occurence -= 1, contenu)
+        }else return occurence
+    }
+
     if(!message.guild) return
-    if(!message.mentions.members.first()) return
 
-    const zakaria = message.mentions.members.first()
-    const contenu = message.content.toLowerCase()
-    if(zakaria.id !== '837454370537996318') return
+    // QUOI ?
+    const sheesh = require('./sheesh.json')
 
-        if((contenu.indexOf("test") > 0)||(contenu.indexOf("ntm") > 0)||(contenu.indexOf("creve") > 0)){
-            
-        }else{
-            message.channel.send('¿')
-        }
-        if(contenu.split(' ')[1] === 'bonjour'){
-            message.reply("Yo")
-        }
+    const ponctuation = '?.;,!:()-_'
+
+    var contenu = message.content.toLowerCase(),
+        contenuSansCheat = contenu
+
+    for(s in contenuSansCheat){
+        if(sheesh[contenuSansCheat[s]]) contenuSansCheat = contenuSansCheat.replace(contenuSansCheat[s], sheesh[contenuSansCheat[s]])
+    }
+
+    const contenuSansCS = contenu.replace(/[^a-z0-9 éèêçàùïî]/g, ''),
+        contenuSansECS = contenuSansCS.replace(/ /g, ''),
+        contenuSansCheatCS = contenuSansCheat.replace(/[^a-z0-9 éèêçàùïî]/g, ''),
+        contenuSansCheatECS = contenuSansCheatCS.replace(/ /g, '')
+
+    const dernierQ = contenu.lastIndexOf('q'),
+        dernierK = contenu.lastIndexOf('k'),
+        dernierC = contenu.lastIndexOf('c'),
+        derniereOccurence = klock(Math.max(dernierQ, dernierK, dernierC), contenuSansCheatCS)
+
+    const mots = contenu.replace(/[ ]+/g, ' ').replace(/[?.;,!:()]+$/g, '').replace(/[ ]+$/g, '').split(' '),
+        motsSansCheat = contenuSansCheat.replace(/[ ]+/g, ' ').replace(/[?.;,!:()]+$/g, '').replace(/[ ]+$/g, '').split(' ')
+
+    if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS) && (ponctuation.split('').some(i => mots[mots.length - 1].includes(i)))) message.reply("Désolée mais je suis trop intiligent pour toi cheh..")
+    else if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS) && (mots[mots.length - 1] != motsSansCheat[motsSansCheat.length - 1])) message.reply("Eh nan toujours pas..")
+    if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS) && (!contenuSansCheatCS[derniereOccurence - 1] || contenuSansCheatCS[derniereOccurence - 1] == ' ')) message.reply("FEUR")
+    else if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS)) message.reply("feur")
+
+
+    // HEIN ?
+    if(/[h]+[e]+[i]+[n]+[ ]*$/g.test(contenuSansCheatCS)) message.reply("2")
+
+    if(message.mentions.members.first()){
+    // SELF PING
+    if(message.mentions.members.first().id == '837454370537996318'){
+        const contenuSansM = contenu.replace(message.mentions.members.first(), '')
+        
+        message.reply("¿")
+    }
+    }
 })
