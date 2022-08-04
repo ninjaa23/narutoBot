@@ -14,6 +14,7 @@ const Discord = require('discord.js'),
     }),
     config = require('./config.json'),
     fs = require('fs'),
+    { weirdToNormalChars } = require('weird-to-normal-chars'),
     { SlashCommandBuilder } = require("@discordjs/builders"),
     mysql = require('mysql'),
     db = mysql.createConnection({
@@ -612,6 +613,8 @@ client.on('guildMemberRemove', member => {
     wowB.send(`**Adieu ${member.user.tag}, sale déserteur !**`)
 })
 
+
+// MESSAGES
 client.on('message', message => {
     function klock(occurence, contenu){
         if(["q", "k", "c"].includes(contenu[occurence - 1])){
@@ -619,41 +622,48 @@ client.on('message', message => {
         }else return occurence
     }
 
-    if(!message.guild) return
+    if(!message.guild || message.author.id == '837454370537996318') return
 
-    // QUOI ?
     const sheesh = require('./sheesh.json')
 
     const ponctuation = '?.;,!:()-_'
 
     var contenu = message.content.toLowerCase(),
-        contenuSansCheat = contenu
+        contenuSansG = weirdToNormalChars(contenu),
+        contenuSansCheat = contenuSansG
 
     for(s in contenuSansCheat){
         if(sheesh[contenuSansCheat[s]]) contenuSansCheat = contenuSansCheat.replace(contenuSansCheat[s], sheesh[contenuSansCheat[s]])
     }
 
-    const contenuSansCS = contenu.replace(/[^a-z0-9 éèêçàùïî]/g, ''),
+    const contenuSansCS = contenuSansG.replace(/[^a-z0-9 éèêçàùïî]/g, ''),
         contenuSansECS = contenuSansCS.replace(/ /g, ''),
         contenuSansCheatCS = contenuSansCheat.replace(/[^a-z0-9 éèêçàùïî]/g, ''),
         contenuSansCheatECS = contenuSansCheatCS.replace(/ /g, '')
 
-    const dernierQ = contenu.lastIndexOf('q'),
-        dernierK = contenu.lastIndexOf('k'),
-        dernierC = contenu.lastIndexOf('c'),
+    const dernierQ = contenuSansG.lastIndexOf('q'),
+        dernierK = contenuSansG.lastIndexOf('k'),
+        dernierC = contenuSansG.lastIndexOf('c'),
         derniereOccurence = klock(Math.max(dernierQ, dernierK, dernierC), contenuSansCheatCS)
 
     const mots = contenu.replace(/[ ]+/g, ' ').replace(/[?.;,!:()]+$/g, '').replace(/[ ]+$/g, '').split(' '),
+        motsSansG = contenuSansG.replace(/[ ]+/g, ' ').replace(/[?.;,!:()]+$/g, '').replace(/[ ]+$/g, '').split(' '),
         motsSansCheat = contenuSansCheat.replace(/[ ]+/g, ' ').replace(/[?.;,!:()]+$/g, '').replace(/[ ]+$/g, '').split(' ')
 
-    if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS) && (ponctuation.split('').some(i => mots[mots.length - 1].includes(i)))) message.reply("Désolée mais je suis trop intiligent pour toi cheh..")
-    else if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS) && (mots[mots.length - 1] != motsSansCheat[motsSansCheat.length - 1])) message.reply("Eh nan toujours pas..")
-    if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS) && (!contenuSansCheatCS[derniereOccurence - 1] || contenuSansCheatCS[derniereOccurence - 1] == ' ')) message.reply("FEUR")
-    else if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS)) message.reply("feur")
+    // QUOI ?
+    if(/[qkc]+[u]*[o]+[i]+$/g.test(contenuSansCheatECS)){
+        if(motsSansG[motsSansG.length - 1] != mots[mots.length - 1]) message.reply(message.author.id == '748859208228929586' ? "Eh non sensei je l'ai vu.." : "J'ai bien trop de chakra pour me faire avoir par ce genre de pièges.")
+        else if(ponctuation.split('').some(i => motsSansG[motsSansG.length - 1].includes(i))) message.reply(message.author.id == '748859208228929586' ? "Je prends cela pour une insulte sensei si vous pensiez que je me ferais avoir..." : "Désolée mais je suis trop intiligent pour toi cheh..")
+        else if(motsSansG[motsSansG.length - 1] != motsSansCheat[motsSansCheat.length - 1]) message.reply(message.author.id == '748859208228929586' ? "Je suis bien plus fort qu'avant ne me sous estimez pas" : "Eh nan toujours pas..")
+        if(!contenuSansCheatCS[derniereOccurence - 1] || contenuSansCheatCS[derniereOccurence - 1] == ' ') message.reply("FEUR")
+        else message.reply("feur")
+    }
 
 
     // HEIN ?
-    if(/[h]+[e]+[i]+[n]+[ ]*$/g.test(contenuSansCheatCS)) message.reply("2")
+    if(/[1]+$/g.test(contenuSansCheatECS) || /[h]+[e]+[i]+[n]+$/g.test(contenuSansCheatECS)) message.reply("2")
+    if(/[2]+$/g.test(contenuSansCheatECS) || /[d]+[e]+[u]+[x]+$/g.test(contenuSansCheatCS)) message.reply("3")
+    if(/[3]+$/g.test(contenuSansCheatECS) || /[t]+[r]+[o]+[i]+[s]+$/g.test(contenuSansCheatCS)) message.reply("soleil")
 
     if(message.mentions.members.first()){
     // SELF PING
